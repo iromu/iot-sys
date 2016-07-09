@@ -1,9 +1,21 @@
-FROM jenkins:1.625.3
+FROM jenkins:1.642.1
+
+USER root
+RUN apt-get update \
+      && apt-get install -y sudo \
+      && rm -rf /var/lib/apt/lists/*
+RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
+USER jenkins
 
 COPY plugins.txt /var/jenkins_home/plugins.txt
 RUN /usr/local/bin/plugins.sh /var/jenkins_home/plugins.txt
 
 # Adding default Jenkins Jobs
+COPY jobs/1-github-seed-job.xml /usr/share/jenkins/ref/jobs/1-github-seed-job/config.xml
+COPY jobs/2-job-dsl-seed-job.xml /usr/share/jenkins/ref/jobs/2-job-dsl-seed-job/config.xml
+COPY jobs/3-conference-app-seed-job.xml /usr/share/jenkins/ref/jobs/3-conference-app-seed-job/config.xml
+COPY jobs/4-selenium2-seed-job.xml /usr/share/jenkins/ref/jobs/4-selenium2-seed-job/config.xml
+COPY jobs/5-docker-admin-seed-job.xml /usr/share/jenkins/ref/jobs/5-docker-admin-seed-job/config.xml
 COPY jobs/job-dsl-seed-job.xml /usr/share/jenkins/ref/jobs/job-dsl-seed-job/config.xml
 
 ############################################
@@ -27,4 +39,3 @@ COPY config/settings.xml /usr/share/jenkins/ref/.m2/settings.xml
 COPY config/credentials.xml /usr/share/jenkins/ref/credentials.xml
 COPY config/ssh-keys/cd-demo /usr/share/jenkins/ref/.ssh/id_rsa
 COPY config/ssh-keys/cd-demo.pub /usr/share/jenkins/ref/.ssh/id_rsa.pub
-
